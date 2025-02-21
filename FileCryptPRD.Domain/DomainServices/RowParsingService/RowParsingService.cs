@@ -32,7 +32,7 @@ public sealed class RowParsingService
         var link = new Link(directLink.Value, status switch
         {
             "online" => Status.Online,
-            "offline" => Status.Offline,
+            "offline" => Status.Offline, 
             _ => Status.Unknown
         });
 
