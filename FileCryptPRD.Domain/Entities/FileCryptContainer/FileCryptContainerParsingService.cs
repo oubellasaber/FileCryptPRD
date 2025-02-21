@@ -54,7 +54,11 @@ public class FileCryptContainerParsingService
             foreach (var row in rows)
             {
                 var parsedRow = await _rowParsingService.ParseRowAsync(row);
-                container.Add(parsedRow.Value.FileName, parsedRow.Value);
+
+                if (parsedRow.IsSuccess)
+                {
+                    container.Add(parsedRow.Value);
+                }
             }
         }
 

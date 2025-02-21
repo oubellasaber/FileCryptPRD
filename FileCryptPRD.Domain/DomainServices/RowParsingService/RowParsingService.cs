@@ -3,6 +3,7 @@ using FileCryptPRD.Domain.Entities.Rows;
 using FileCryptPRD.Domain.Entities.Rows.Enums;
 using FileCryptPRD.Domain.Entities.Rows.ValueObjects;
 using HtmlAgilityPack;
+using System.Text.RegularExpressions;
 
 namespace FileCryptPRD.Domain.DomainServices.RowParsingService;
 
@@ -26,15 +27,29 @@ public sealed class RowParsingService
             !.GetAttributeValue("class", "")
             .Split(" ")
             .FirstOrDefault();
-        double.TryParse(row.SelectSingleNode("./td[3]")!.InnerText.Split(' ').FirstOrDefault(), out var fileSize);
         var directLink = await _linkResolvingService.Resolve(id!);
 
         var link = new Link(directLink.Value, status switch
         {
             "online" => Status.Online,
-            "offline" => Status.Offline, 
+            "offline" => Status.Offline,
             _ => Status.Unknown
         });
+
+        string rawFileSize = row.SelectSingleNode("./td[3]").InnerText;
+        string pattern = @"^(?<size>\d+(\.\d+)?)\s?(?<unit>GB|MB)$";
+
+        FileSize? fileSize = null;
+
+        Match match = Regex.Match(rawFileSize, pattern);
+
+        if (match.Success)
+        {
+            double size = double.Parse(match.Groups["size"].Value);
+            DataMeasurement unit = Enum.Parse<DataMeasurement>(match.Groups["unit"].Value);
+
+            fileSize = new FileSize(size, unit);
+        }
 
         var parsedRow = new Row(id!, fileName, fileSize, link);
         return parsedRow;
