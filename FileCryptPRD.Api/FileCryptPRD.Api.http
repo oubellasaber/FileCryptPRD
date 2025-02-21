@@ -1,0 +1,6 @@
+@FileCryptPRD.Api_HostAddress = http://localhost:5276
+
+GET {{FileCryptPRD.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
