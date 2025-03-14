@@ -1,4 +1,4 @@
-﻿using FileCryptPRD.Domain.DomainServices.RowParsingService;
+﻿using FileCryptPRD.Infrastructure.ScraperApiKeyManagement;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FileCryptPRD.Infrastructure.DependencyInjection
@@ -9,15 +9,16 @@ namespace FileCryptPRD.Infrastructure.DependencyInjection
         {
             services.AddHttpClient("Default", client =>
             {
-                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36");
             });
 
             services.AddHttpClient<ScraperApiClient>();
-            services.AddHttpClient<FileCryptClient>(client =>
-            {
-                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
-            });
-            services.AddSingleton<IFileCryptClient, FileCryptClient>();
+            services.AddSingleton<IScraperApiKeyManager, ScraperApiKeyManager>();
+            //services.AddHttpClient<FileCryptClient>(client =>
+            //{
+            //    client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36");
+            //});
+            //services.AddSingleton<IFileCryptClient, FileCryptClient>();
 
             return services;
         }

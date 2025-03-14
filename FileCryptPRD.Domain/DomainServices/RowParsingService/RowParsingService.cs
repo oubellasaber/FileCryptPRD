@@ -1,4 +1,5 @@
 ﻿using FileCryptPRD.Domain.Entities.Abstractions;
+using FileCryptPRD.Domain.Entities.FileCryptHeader;
 using FileCryptPRD.Domain.Entities.Rows;
 using FileCryptPRD.Domain.Entities.Rows.Enums;
 using FileCryptPRD.Domain.Entities.Rows.ValueObjects;
@@ -9,16 +10,14 @@ namespace FileCryptPRD.Domain.DomainServices.RowParsingService;
 
 public sealed class RowParsingService
 {
-    private readonly IFileCryptClient _htmlFetcher;
     private readonly LinkResolvingService.LinkResolvingService _linkResolvingService;
 
-    public RowParsingService(IFileCryptClient htmlFetcher, LinkResolvingService.LinkResolvingService linkResolvingService)
+    public RowParsingService(LinkResolvingService.LinkResolvingService linkResolvingService)
     {
-        _htmlFetcher = htmlFetcher;
         _linkResolvingService = linkResolvingService;
     }
 
-    public async Task<Result<Row>> ParseRowAsync(HtmlNode row)
+    public async Task<Result<Row>> ParseRowAsync(HtmlNode row, FileCryptHeader header)
     {
         var id = GetFirstDataAttribute(row)?.Value;
         var fileName = row.SelectSingleNode(".//td/@title").GetAttributeValue("title", "");
@@ -27,7 +26,7 @@ public sealed class RowParsingService
             !.GetAttributeValue("class", "")
             .Split(" ")
             .FirstOrDefault();
-        var directLink = await _linkResolvingService.Resolve(id!);
+        var directLink = await _linkResolvingService.Resolve(id!, header);
 
         var link = new Link(directLink.Value, status switch
         {
@@ -51,7 +50,7 @@ public sealed class RowParsingService
             fileSize = new FileSize(size, unit);
         }
 
-        var parsedRow = new Row(id!, fileName, fileSize, link);
+        var parsedRow = new Row(fileName, fileSize, link);
         return parsedRow;
     }
 

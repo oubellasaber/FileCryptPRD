@@ -12,14 +12,8 @@ public static class FileCryptDomainServiceCollectionExtensions
     public static IServiceCollection AddFileCryptDomain(
         this IServiceCollection services)
     {
-        services.AddSingleton<FileCryptHeaderProviderService>();
         services.AddSingleton<LinkResolvingService>();
         services.AddSingleton<RowParsingService>();
-        services.AddSingleton<FileCryptContainerParsingService>();
-        services.AddTransient(provider =>
-        provider
-        .GetRequiredService<FileCryptHeaderProviderService>()
-        .GetFileCryptHeader());
 
         return services;
     }

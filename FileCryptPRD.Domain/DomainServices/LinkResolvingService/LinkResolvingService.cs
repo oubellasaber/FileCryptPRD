@@ -1,5 +1,4 @@
-﻿using FileCryptPRD.Domain.DomainServices.RowParsingService;
-using FileCryptPRD.Domain.Entities.Abstractions;
+﻿using FileCryptPRD.Domain.Entities.Abstractions;
 using FileCryptPRD.Domain.Entities.FileCryptHeader;
 using Microsoft.Extensions.Options;
 using System.Text.RegularExpressions;
@@ -8,26 +7,23 @@ namespace FileCryptPRD.Domain.DomainServices.LinkResolvingService;
 
 public sealed class LinkResolvingService
 {
-    private readonly IFileCryptClient _client;
-    private readonly FileCryptHeader _headers;
+    private readonly HttpClient _client;
     private readonly FileCryptSettings _settings;
 
-    public LinkResolvingService(IFileCryptClient client,
-                                FileCryptHeader headers,
+    public LinkResolvingService(IHttpClientFactory httpClientFactory,
                                 IOptions<FileCryptSettings> settings)
     {
-        _client = client;
-        _headers = headers;
+        _client = httpClientFactory.CreateClient("Default");
         _settings = settings.Value;
     }
 
-    public async Task<Result<Uri>> Resolve(string id)
+    public async Task<Result<Uri>> Resolve(string id, FileCryptHeader fileCryptHeader)
     {
         var requestUrl = new Uri(_settings.BaseUrl, $"{_settings.LinkEndpoint}/{id}.html");
 
         var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 
-        request.Headers.Add(_headers.PhpSessionCookie.HeaderName, _headers.PhpSessionCookie.Value);
+        request.Headers.Add(fileCryptHeader.PhpSessionCookie.HeaderName, fileCryptHeader.PhpSessionCookie.Value);
 
         var response = await _client.SendAsync(request);
 
@@ -67,7 +63,7 @@ public sealed class LinkResolvingService
 
         var finalReq = new HttpRequestMessage(HttpMethod.Get, resolvedUrl);
 
-        finalReq.Headers.Add(_headers.PhpSessionCookie.HeaderName, _headers.PhpSessionCookie.Value);
+        finalReq.Headers.Add(fileCryptHeader.PhpSessionCookie.HeaderName, fileCryptHeader.PhpSessionCookie.Value);
         try
         {
             response = await _client.SendAsync(finalReq);

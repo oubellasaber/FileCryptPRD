@@ -15,4 +15,10 @@
     <ProjectReference Include="..\FileCryptPRD.Domain\FileCryptPRD.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="FileCryptHeaderDb.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
